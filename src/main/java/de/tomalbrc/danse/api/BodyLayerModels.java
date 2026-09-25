@@ -44,12 +44,23 @@ public final class BodyLayerModels {
      * @param inflate model units the cube grows by on every side, so stacked layers never share a plane
      */
     public static String shell(BodyPart part, Identifier texture, int vShift, float inflate) {
-        Map<Direction, int[]> regions = MinecraftSkinParser.NOTCH_TEXTURE_MAP.get(part).get(MinecraftSkinParser.Layer.INNER);
+        return shell(part, texture, vShift, inflate, new int[]{0, 0, 64, 32});
+    }
+
+    /**
+     * A shell over a texture that is only a crop of the armour layout: {@code crop} = {x, y, w, h}
+     * in skin texels, the rectangle the texture covers. Crop to {@link #region} and a layer texture
+     * shrinks to the part it actually draws on, which keeps the items atlas small.
+     */
+    public static String shell(BodyPart part, Identifier texture, int vShift, float inflate, int[] crop) {
+        Map<Direction, int[]> regions = regions(part);
         JsonObject faces = new JsonObject();
         for (Direction face : Direction.values()) {
             float[] t = uvTexels(regions.get(SOURCE.get(face)), vShift);
             JsonObject f = new JsonObject();
-            f.add("uv", array(t[0] / 4f, t[1] / 2f, t[2] / 4f, t[3] / 2f));
+            f.add("uv", array(
+                    (t[0] - crop[0]) * 16f / crop[2], (t[1] - crop[1]) * 16f / crop[3],
+                    (t[2] - crop[0]) * 16f / crop[2], (t[3] - crop[1]) * 16f / crop[3]));
             f.addProperty("texture", "#t");
             faces.add(face.getName(), f);
         }
@@ -77,6 +88,25 @@ public final class BodyLayerModels {
         model.add("elements", elements);
         model.add("display", display);
         return GSON.toJson(model);
+    }
+
+    /** The rectangle {x, y, w, h} in skin texels that a shell for this part reads, {@code vShift} applied. */
+    public static int[] region(BodyPart part, int vShift) {
+        float minU = Float.MAX_VALUE, minV = Float.MAX_VALUE, maxU = -Float.MAX_VALUE, maxV = -Float.MAX_VALUE;
+        for (int[] region : regions(part).values()) {
+            float[] t = uvTexels(region, vShift);
+            minU = Math.min(minU, Math.min(t[0], t[2]));
+            maxU = Math.max(maxU, Math.max(t[0], t[2]));
+            minV = Math.min(minV, t[1]);
+            maxV = Math.max(maxV, t[3]);
+        }
+        return new int[]{(int) minU, (int) minV, (int) (maxU - minU), (int) (maxV - minV)};
+    }
+
+    private static Map<Direction, int[]> regions(BodyPart part) {
+        var layers = MinecraftSkinParser.NOTCH_TEXTURE_MAP.get(part);
+        if (layers == null) throw new IllegalArgumentException("no armour layout for " + part + " (armour is never slim)");
+        return layers.get(MinecraftSkinParser.Layer.INNER);
     }
 
     /** A region {x, y, w, h} (w negative = mirrored) as [u1, v1, u2, v2] in skin texels. */
