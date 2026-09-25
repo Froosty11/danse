@@ -55,6 +55,9 @@ public class GestureController {
 
     public static void onStop(GestureCameraHolder camera) {
         var player = camera.getPlayer();
+        // Unregistered first: the teleport below would otherwise read as a teleport during the
+        // gesture (ServerGamePacketListenerImplMixin) and stop it all over again.
+        GestureController.GESTURE_CAMS.remove(player.getUUID());
         if (!player.hasDisconnected()) {
             PolymerUtils.reloadInventory(player);
         }
@@ -69,21 +72,23 @@ public class GestureController {
 
         if (!player.hasDisconnected()) {
             var pmr = new PositionMoveRotation(camera.getPlayerModel().position(), Vec3.ZERO, player.getYRot(), player.getXRot());
-            var packet = new ClientboundPlayerPositionPacket(player.getId(), pmr, Set.of());
             var p2 = new ClientboundEntityPositionSyncPacket(player.getId(), PositionPath.of(camera.getPlayerModel().position()), player.getYRot(), player.getXRot(), camera.getPlayerModel().onGround());
             player.connection.send(
                     new ClientboundBundlePacket(ImmutableList.of(
                             new ClientboundSetCameraPacket(player),
                             VirtualEntityUtils.createClientboundSetPassengersPacket(camera.getCameraId(), IntList.of()),
                             new ClientboundGameEventPacket(ClientboundGameEventPacket.CHANGE_GAME_MODE, player.gameMode().getId()),
-                            packet,
                             p2
                     ))
             );
+            // A real teleport, with the server's own teleport id. A hand-made position packet
+            // carried the player's entity id there: the reply was ignored, or — when that id
+            // matched the server's pending one (entity 1, join teleport 1) — taken as the real
+            // acknowledgement, which 26.3 answers with "Invalid move player packet received".
+            player.connection.teleport(pmr, Set.of());
         }
 
         camera.destroy();
-        GestureController.GESTURE_CAMS.remove(player.getUUID());
     }
 
     public static void onStart(ServerPlayer player, String animationName) {
