@@ -72,3 +72,20 @@ The name of the animation will be used in-game
 # License
 
 Versions before 2.0.0 are LPGL-3.0 licensed.
+
+---
+
+# Metacraft fork
+
+This is [Metacraft](https://github.com/Froosty11/metamods)'s fork of
+[tomalbrc/danse](https://github.com/tomalbrc/danse), branch `metacraft`, licensed AGPL-3.0 like
+upstream. Changes from `v2.6.0+26.3`:
+
+- **Mixins common.** The five mixins are listed under `"mixins"` instead of `"server"`, so a
+  gesture can start when the server runs inside a client JVM (Fabric's client game tests). A
+  dedicated server behaves the same either way.
+- **Body layers** (`de.tomalbrc.danse.api`). Other mods can put an ordinary textured item model on
+  each body part of the stand-in (`BodyLayers.register`), drawn just inside Danse's armour, at the
+  texture's own resolution; `BodyLayerModels.shell` writes a model that fits a part exactly.
+  Ovvar uses it so overalls and their patches are not squashed into Danse's one-pixel-per-texel grid.
+- **`/gesture source`** prints where this source lives, as the AGPL asks of a network server.
