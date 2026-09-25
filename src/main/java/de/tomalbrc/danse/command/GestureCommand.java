@@ -11,11 +11,17 @@ import de.tomalbrc.danse.util.GestureDialog;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
 import net.minecraft.core.Holder;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+
+import java.net.URI;
 
 import static net.minecraft.commands.Commands.literal;
 
 public class GestureCommand {
+    public static final String SOURCE_URL = "https://github.com/Froosty11/danse";
+
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralCommandNode<CommandSourceStack> gestureNode = Commands
                 .literal("gesture").requires(Permissions.require("danse.animation", 1).or((s) -> !ModConfig.getInstance().permissionCheck))
@@ -33,6 +39,15 @@ public class GestureCommand {
                 .build();
 
         dispatcher.getRoot().addChild(gestureNode);
+
+        // AGPL §13: players of a network server can find the source they are running against.
+        gestureNode.addChild(literal("source").executes(ctx -> {
+            ctx.getSource().sendSuccess(() -> Component.literal("danse (Metacraft fork, AGPL-3.0) — source: ")
+                    .append(Component.literal(SOURCE_URL).withStyle(style -> style
+                            .withUnderlined(true)
+                            .withClickEvent(new ClickEvent.OpenUrl(URI.create(SOURCE_URL))))), false);
+            return Command.SINGLE_SUCCESS;
+        }).build());
 
         for (String animation : PlayerModelRegistry.getAnimations()) {
             var name = animation
