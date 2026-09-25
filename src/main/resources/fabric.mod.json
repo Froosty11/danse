@@ -9,9 +9,10 @@
     "tomalbrc", "Drex", "ExtraJuiceMan"
   ],
   "contact": {
-    "repo": "https://github.com/tomalbrc/danse"
+    "sources": "https://github.com/Froosty11/danse",
+    "homepage": "https://github.com/tomalbrc/danse"
   },
-  "license": "LGPL-3.0-and-later",
+  "license": "AGPL-3.0-only",
   "environment": "*",
   "entrypoints": {
     "main": [
