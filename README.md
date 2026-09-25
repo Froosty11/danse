@@ -88,6 +88,9 @@ upstream. Changes from `v2.6.0+26.3`:
   each body part of the stand-in (`BodyLayers.register`), drawn just inside Danse's armour, at the
   texture's own resolution; `BodyLayerModels.shell` writes a model that fits a part exactly.
   Ovvar uses it so overalls and their patches are not squashed into Danse's one-pixel-per-texel grid.
+- **Gestures end with a real teleport.** Upstream's end-of-gesture position packet carried the
+  player's entity id as its teleport id; when that matched the server's pending teleport (the first
+  player after a restart), 26.3 kicked the player with "Invalid move player packet received".
 - **`/danse source`** (open to every player) and `/gesture source` print where this source lives, as
   the AGPL asks of a network server. `fabric.mod.json` says `AGPL-3.0-only` (upstream's said LGPL,
   while its LICENSE file is the AGPL) and points at this fork.
