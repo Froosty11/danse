@@ -11,6 +11,7 @@ import de.tomalbrc.bil.core.model.Model;
 import de.tomalbrc.bil.core.model.Node;
 import de.tomalbrc.bil.core.model.Pose;
 import de.tomalbrc.danse.Danse;
+import de.tomalbrc.danse.api.BodyLayers;
 import de.tomalbrc.danse.entity.GesturePlayerModelEntity;
 import de.tomalbrc.danse.entity.StatuePlayerModelEntity;
 import de.tomalbrc.danse.util.MinecraftSkinParser;
@@ -41,6 +42,7 @@ import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.CustomModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -182,14 +184,23 @@ public class PlayerPartHolder<T extends StatuePlayerModelEntity & AnimatedEntity
 
                     boolean isBody = part == MinecraftSkinParser.BodyPart.BODY;
                     boolean isLeg = part.isLeg();
+                    ItemStack innerStack = equipment.get(isBody ? EquipmentSlot.LEGS : part.getSlot());
+                    ItemStack outerStack = equipment.get(isLeg ? EquipmentSlot.FEET : part.getSlot());
 
                     ItemStack armorItem = item.copy();
-                    armorItem.set(DataComponents.CUSTOM_MODEL_DATA, TextureCache.armorCustomModelData(part, equipment.get(isBody ? EquipmentSlot.LEGS : part.getSlot()), true));
+                    armorItem.set(DataComponents.CUSTOM_MODEL_DATA, BodyLayers.replacesArmor(innerStack)
+                            ? CustomModelData.EMPTY
+                            : TextureCache.armorCustomModelData(part, innerStack, true));
                     bone.armor.getSyncedData().set(DisplayEntityData.Item.ITEM, armorItem, true);
 
                     ItemStack armorItemOuter = item.copy();
-                    armorItemOuter.set(DataComponents.CUSTOM_MODEL_DATA, TextureCache.armorCustomModelData(part, equipment.get(isLeg ? EquipmentSlot.FEET : part.getSlot()), false));
+                    armorItemOuter.set(DataComponents.CUSTOM_MODEL_DATA, BodyLayers.replacesArmor(outerStack)
+                            ? CustomModelData.EMPTY
+                            : TextureCache.armorCustomModelData(part, outerStack, false));
                     bone.armorOuter.getSyncedData().set(DisplayEntityData.Item.ITEM, armorItemOuter, true);
+
+                    bone.layer.getSyncedData().set(DisplayEntityData.Item.ITEM, BodyLayers.layer(equipment, part, true), true);
+                    bone.layerOuter.getSyncedData().set(DisplayEntityData.Item.ITEM, BodyLayers.layer(equipment, part, false), true);
                 }
             }
         }
@@ -295,6 +306,25 @@ public class PlayerPartHolder<T extends StatuePlayerModelEntity & AnimatedEntity
                 multipartModelBone.armorOuter.setTransformation(mat1);
             }
 
+            // Body layers sit a hair inside the armour shells, so real armour pixels still cover them.
+            if (multipartModelBone.layer != null) {
+                var mat1 = new Matrix4f(mat);
+                if (rotation != null) mat1.mul(new Matrix4f().rotate(rotation));
+                mat1.translate(0.0f, offset(multipartModelBone), 0.0f);
+                mat1.scale(1.09f);
+                mat1.translateLocal(pose.readOnlyTranslation());
+                multipartModelBone.layer.setTransformation(mat1);
+            }
+
+            if (multipartModelBone.layerOuter != null) {
+                var mat1 = new Matrix4f(mat);
+                if (rotation != null) mat1.mul(new Matrix4f().rotate(rotation));
+                mat1.translate(0.0f, offsetArmor(multipartModelBone), 0.0f);
+                mat1.scale(1.19f);
+                mat1.translateLocal(pose.readOnlyTranslation());
+                multipartModelBone.layerOuter.setTransformation(mat1);
+            }
+
             for (ItemDisplayElement part : multipartModelBone.additionalElements()) {
                 part.setYaw(this.parent.getYRot());
                 part.setInterpolationDuration(2);
@@ -373,8 +403,10 @@ public class PlayerPartHolder<T extends StatuePlayerModelEntity & AnimatedEntity
                         var boneDisplayOuter = this.createBoneDisplay(node.modelData());
                         var boneDisplayArmor = this.createBoneDisplay(node.modelData());
                         var boneDisplayArmorOuter = this.createBoneDisplay(node.modelData());
+                        var boneDisplayLayer = this.createBoneDisplay(node.modelData());
+                        var boneDisplayLayerOuter = this.createBoneDisplay(node.modelData());
                         if (boneDisplay != null) {
-                            bones.add(MultipartModelBone.of(boneDisplay, boneDisplayOuter, boneDisplayArmor, boneDisplayArmorOuter, node, defaultPose));
+                            bones.add(MultipartModelBone.of(boneDisplay, boneDisplayOuter, boneDisplayArmor, boneDisplayArmorOuter, boneDisplayLayer, boneDisplayLayerOuter, node, defaultPose));
                             this.addElement(boneDisplay);
                         }
                     } else {
@@ -429,13 +461,18 @@ public class PlayerPartHolder<T extends StatuePlayerModelEntity & AnimatedEntity
         public final ItemDisplayElement outer;
         public final ItemDisplayElement armor;
         public final ItemDisplayElement armorOuter;
+        /** Body layers ({@link BodyLayers}): just inside {@link #armor} and {@link #armorOuter}. */
+        public final ItemDisplayElement layer;
+        public final ItemDisplayElement layerOuter;
         public final MinecraftSkinParser.BodyPart bodyPart;
 
-        protected MultipartModelBone(PerPlayerItemDisplayElement element, PerPlayerItemDisplayElement outer, PerPlayerItemDisplayElement armor, PerPlayerItemDisplayElement armorOuter, Node node, Pose defaultPose) {
+        protected MultipartModelBone(PerPlayerItemDisplayElement element, PerPlayerItemDisplayElement outer, PerPlayerItemDisplayElement armor, PerPlayerItemDisplayElement armorOuter, PerPlayerItemDisplayElement layer, PerPlayerItemDisplayElement layerOuter, Node node, Pose defaultPose) {
             super(element, node, defaultPose);
             this.outer = outer;
             this.armor = armor;
             this.armorOuter = armorOuter;
+            this.layer = layer;
+            this.layerOuter = layerOuter;
             this.bodyPart = MinecraftSkinParser.BodyPart.partFrom(node.name());
         }
 
@@ -443,12 +480,12 @@ public class PlayerPartHolder<T extends StatuePlayerModelEntity & AnimatedEntity
             return this.bodyPart;
         }
 
-        public static MultipartModelBone of(PerPlayerItemDisplayElement inner, PerPlayerItemDisplayElement outer, PerPlayerItemDisplayElement armor, PerPlayerItemDisplayElement armorOuter, @NotNull Node node, Pose defaultPose) {
-            return new MultipartModelBone(inner, outer, armor, armorOuter, node, defaultPose);
+        public static MultipartModelBone of(PerPlayerItemDisplayElement inner, PerPlayerItemDisplayElement outer, PerPlayerItemDisplayElement armor, PerPlayerItemDisplayElement armorOuter, PerPlayerItemDisplayElement layer, PerPlayerItemDisplayElement layerOuter, @NotNull Node node, Pose defaultPose) {
+            return new MultipartModelBone(inner, outer, armor, armorOuter, layer, layerOuter, node, defaultPose);
         }
 
         public ImmutableList<@NotNull ItemDisplayElement> additionalElements() {
-            return ImmutableList.of(element(), this.outer, this.armor, this.armorOuter);
+            return ImmutableList.of(element(), this.outer, this.armor, this.armorOuter, this.layer, this.layerOuter);
         }
 
         public void setYaw(float yRot) {
