@@ -5,6 +5,7 @@ import de.tomalbrc.danse.entity.GesturePlayerModelEntity;
 import de.tomalbrc.danse.poly.GestureCameraHolder;
 import de.tomalbrc.danse.registry.EntityRegistry;
 import de.tomalbrc.danse.registry.PlayerModelRegistry;
+import de.tomalbrc.danse.util.GestureSongs;
 import de.tomalbrc.danse.util.MinecraftSkinFetcher;
 import de.tomalbrc.danse.util.MinecraftSkinParser;
 import de.tomalbrc.danse.util.Util;
@@ -58,6 +59,7 @@ public class GestureController {
         // Unregistered first: the teleport below would otherwise read as a teleport during the
         // gesture (ServerGamePacketListenerImplMixin) and stop it all over again.
         GestureController.GESTURE_CAMS.remove(player.getUUID());
+        GestureSongs.stop(player);
         if (!player.hasDisconnected()) {
             PolymerUtils.reloadInventory(player);
         }
@@ -124,5 +126,6 @@ public class GestureController {
         playerModel.playAnimation(animationName, x -> GestureController.onStop(gestureCameraHolder));
 
         player.level().addFreshEntity(playerModel);
+        GestureSongs.start(player, animationName, player.position());
     }
 }

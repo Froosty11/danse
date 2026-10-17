@@ -11,6 +11,7 @@ import de.tomalbrc.danse.registry.EntityRegistry;
 import de.tomalbrc.danse.registry.ItemRegistry;
 import de.tomalbrc.danse.registry.PlayerModelRegistry;
 import de.tomalbrc.danse.util.GestureDialog;
+import de.tomalbrc.danse.util.GestureSongs;
 import de.tomalbrc.danse.util.MinecraftSkinData;
 import de.tomalbrc.dialogutils.util.FontUtil;
 import eu.pb4.polymer.autohost.impl.AutoHostConfig;
@@ -98,6 +99,7 @@ public class Danse implements ModInitializer {
 
         ServerPlayConnectionEvents.JOIN.register((serverGamePacketListener, packetSender, minecraftServer) -> GestureController.onConnect(serverGamePacketListener.player));
         ServerPlayConnectionEvents.DISCONNECT.register((serverGamePacketListener, minecraftServer) -> GestureController.onDisconnect(serverGamePacketListener.player));
+        GestureSongs.register();
         CommandRegistrationCallback.EVENT.register((dispatcher, context, selection) -> {
             GestureCommand.register(dispatcher);
             //GestureHudCommand.register(dispatcher);
