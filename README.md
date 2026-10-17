@@ -91,6 +91,9 @@ upstream. Changes from `v2.6.0+26.3`:
 - **Gestures end with a real teleport.** Upstream's end-of-gesture position packet carried the
   player's entity id as its teleport id; when that matched the server's pending teleport (the first
   player after a restart), 26.3 kicked the player with "Invalid move player packet received".
+- **Six more gestures** (`emotes.ajblueprint`, made for Metacraft in Animated Java 1.11): amogus,
+  clap, defeat, floss, fortnite and soldier_of_dance, each with its icon. Their bone pivots are
+  moved onto Danse's player rig (body 14, arms ±6, legs 13), where the stand-in's parts are placed.
 - **`/danse source`** (open to every player) and `/gesture source` print where this source lives, as
   the AGPL asks of a network server. `fabric.mod.json` says `AGPL-3.0-only` (upstream's said LGPL,
   while its LICENSE file is the AGPL) and points at this fork.

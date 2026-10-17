@@ -26,7 +26,8 @@ public class PlayerModelRegistry {
         var sourceModels = ImmutableList.of(
                 "loosely-coupled",
                 "tightly-coupled",
-                "default"
+                "default",
+                "emotes"
                 // add more if needed
         );
 
