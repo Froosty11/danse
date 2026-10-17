@@ -94,6 +94,8 @@ upstream. Changes from `v2.6.0+26.3`:
 - **Six more gestures** (`emotes.ajblueprint`, made for Metacraft in Animated Java 1.11): amogus,
   clap, defeat, floss, fortnite and soldier_of_dance, each with its icon. Their bone pivots are
   moved onto Danse's player rig (body 14, arms ±6, legs 13), where the stand-in's parts are placed.
+  Its keyframes are converted to the old convention too: the 1.7.3 loader negates rotation X and Y
+  and position X, which Blockbench 5 files already store negated.
 - **Gesture songs.** A gesture can play a note block song while it runs: an Open Note Block Studio
   file named after it, `model/danse/<gesture>.nbs` in the jar or `config/danse/<gesture>.nbs` on the
   server. It is played with vanilla note block sounds from where the player dances (heard like a
