@@ -91,12 +91,25 @@ upstream. Changes from `v2.6.0+26.3`:
 - **Gestures end with a real teleport.** Upstream's end-of-gesture position packet carried the
   player's entity id as its teleport id; when that matched the server's pending teleport (the first
   player after a restart), 26.3 kicked the player with "Invalid move player packet received".
-- **More gestures** (`emotes.ajblueprint`, by Millia in Animated Java 1.11): amogus, clap, defeat,
-  floss, fortnite, soldier_of_dance and rote_pferd, rigged on Danse's player rig (body 14, arms ±6,
-  legs 13), where the stand-in's parts are placed. Saved here in the 1.7.3 layout the player-model
-  loader reads, keyframes included: that importer negates rotation X and Y and position X, which
-  Blockbench 5 files store already negated. `joint_fix` (in it) and `joint_wrong`
-  (`emotes-vanilla-rig.ajblueprint`, the same motion on the vanilla rig) are Millia's test of the two rigs.
+- **Blockbench 5 gestures, natively.** Animated Java 1.11 / Blockbench 5 blueprints load as saved
+  (`PlayerModel5Importer`), and their keyframes are sampled the way Blockbench plays them
+  (`BlockbenchSampler`: the interpolation follows both neighbouring keyframes, Animated Java's
+  easing only on linear segments), so a gesture moves in game as it does in the editor. Older 1.7.3
+  files still load as before. A blueprint that fails to load logs an error instead of stopping the server.
+- **More gestures** (`emotes.ajblueprint`, by Millia in Animated Java 1.11, as saved): amogus, clap,
+  defeat, floss, fortnite, soldier_of_dance and rote_pferd, rigged on Danse's player rig (body 14,
+  arms ±6, legs 13), where the stand-in's parts are placed. `joint_fix` (in it) and `joint_wrong`
+  (`emotes-vanilla-rig.ajblueprint`, the same pose on the vanilla rig) are Millia's test of the two
+  rigs: on the vanilla rig the stand-in's joints come apart.
+- **Adding a gesture.** Animate in Animated Java 1.11 on Danse's rig: groups named `head`, `body`,
+  `arm_r`, `arm_l`, `leg_r`, `leg_l` with their pivots at the rig's (`emotes.ajblueprint` is a
+  template; parent groups such as its `construct` may move the whole figure). Each animation is a
+  gesture, named after it. Drop the `.ajblueprint` into `config/danse/` on the server, or into
+  `src/main/resources/model/danse/` and its name into `PlayerModelRegistry.loadBuiltin()`. The
+  dialog's icon is `model/danse/<gesture>_icon.png` in the jar; a song is `<gesture>.nbs` beside the blueprint. To check one against Blockbench,
+  `tools/bbpose` draws Blockbench's pose of any frame, and the fork-only `gesture-frames` workflow
+  photographs gestures frame by frame in game (`GestureFramesClientTest`); `tools/bbpose/compare.py`
+  puts the two side by side.
 - **Gesture songs.** A gesture can play a note block song while it runs: an Open Note Block Studio
   file named after it, `model/danse/<gesture>.nbs` in the jar or `config/danse/<gesture>.nbs` on the
   server. It is played with vanilla note block sounds from where the player dances (heard like a
