@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "id": "danse-clienttest",
+  "version": "1.0.0",
+  "name": "Danse client tests",
+  "description": "Screenshots of gestures, frame by frame, to set beside Blockbench.",
+  "license": "AGPL-3.0-only",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-client-gametest": [
+      "de.tomalbrc.danse.clienttest.GestureFramesClientTest"
+    ]
+  },
+  "mixins": [
+    "danse-clienttest.mixins.json"
+  ],
+  "depends": {
+    "danse": "*",
+    "fabric-client-gametest-api-v1": "*"
+  }
+}

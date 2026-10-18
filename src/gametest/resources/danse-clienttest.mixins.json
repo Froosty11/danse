@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "de.tomalbrc.danse.clienttest.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "PolymerHelloMixin",
+    "ServerPackAutoAcceptMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

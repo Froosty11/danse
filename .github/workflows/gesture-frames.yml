@@ -1,0 +1,60 @@
+# Fork only: build, then photograph gestures frame by frame in a real client (GestureFramesClientTest)
+# so they can be set beside Blockbench's poses (tools/bbpose). Not for upstream.
+
+name: gesture-frames
+on:
+  push:
+    branches: [bb5-native, metacraft]
+    paths-ignore: ['README.md']
+  workflow_dispatch:
+
+jobs:
+  frames:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 25
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Install a virtual display and Mesa
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1 libgl1-mesa-dri libglx-mesa0 libegl1 mesa-utils mesa-vulkan-drivers
+
+      - name: Build
+        run: ./gradlew build
+
+      # With CI set, Loom wraps a client run in its own xvfb-run, whose default screen is 8 bits deep:
+      # no GLX visual for OpenGL there. Without CI it runs in this one.
+      - name: Client screenshot test
+        timeout-minutes: 30
+        run: |
+          env -u CI xvfb-run -a -s "-screen 0 1920x1080x24 +extension GLX +render -noreset" \
+            ./gradlew runClientGameTest
+
+      - name: Upload screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gesture-frames
+          path: build/run/clientGameTest/screenshots/
+          if-no-files-found: warn
+
+      - name: Upload logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: gesture-frames-logs
+          path: |
+            build/run/clientGameTest/logs/
+            build/run/clientGameTest/crash-reports/
+          if-no-files-found: warn

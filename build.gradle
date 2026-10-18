@@ -10,6 +10,19 @@ loom {
     accessWidenerPath = file("src/main/resources/danse.accesswidener")
 }
 
+// Client screenshot test: a client joins an in-process dedicated server, runs gestures and
+// photographs them frame by frame. Source set src/gametest, task runClientGameTest (needs a display).
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "danse-clienttest"
+        enableGameTests = false
+        enableClientGameTests = true
+        eula = true
+        username = "Tester"
+    }
+}
+
 repositories {
     mavenCentral()
     maven { url "https://maven.tomalbrc.de" }
