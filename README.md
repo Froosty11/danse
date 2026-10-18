@@ -91,11 +91,12 @@ upstream. Changes from `v2.6.0+26.3`:
 - **Gestures end with a real teleport.** Upstream's end-of-gesture position packet carried the
   player's entity id as its teleport id; when that matched the server's pending teleport (the first
   player after a restart), 26.3 kicked the player with "Invalid move player packet received".
-- **Six more gestures** (`emotes.ajblueprint`, made for Metacraft in Animated Java 1.11): amogus,
-  clap, defeat, floss, fortnite and soldier_of_dance, each with its icon. Their bone pivots are
-  moved onto Danse's player rig (body 14, arms ±6, legs 13), where the stand-in's parts are placed.
-  Its keyframes are converted to the old convention too: the 1.7.3 loader negates rotation X and Y
-  and position X, which Blockbench 5 files already store negated.
+- **More gestures** (`emotes.ajblueprint`, by Millia in Animated Java 1.11): amogus, clap, defeat,
+  floss, fortnite, soldier_of_dance and rote_pferd, rigged on Danse's player rig (body 14, arms ±6,
+  legs 13), where the stand-in's parts are placed. Saved here in the 1.7.3 layout the player-model
+  loader reads, keyframes included: that importer negates rotation X and Y and position X, which
+  Blockbench 5 files store already negated. `joint_fix` (in it) and `joint_wrong`
+  (`emotes-vanilla-rig.ajblueprint`, the same motion on the vanilla rig) are Millia's test of the two rigs.
 - **Gesture songs.** A gesture can play a note block song while it runs: an Open Note Block Studio
   file named after it, `model/danse/<gesture>.nbs` in the jar or `config/danse/<gesture>.nbs` on the
   server. It is played with vanilla note block sounds from where the player dances (heard like a

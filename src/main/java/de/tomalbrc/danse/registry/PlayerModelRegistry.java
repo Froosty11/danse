@@ -27,6 +27,7 @@ public class PlayerModelRegistry {
                 "loosely-coupled",
                 "tightly-coupled",
                 "default",
+                "emotes-vanilla-rig",   // joint_wrong only: Millia's test of the vanilla rig against danse's
                 "emotes"
                 // add more if needed
         );
