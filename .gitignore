@@ -31,3 +31,5 @@ build/
 
 # private
 animated-java-models/
+# python
+__pycache__/
