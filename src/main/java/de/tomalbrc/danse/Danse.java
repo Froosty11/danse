@@ -119,7 +119,11 @@ public class Danse implements ModInitializer {
         try {
             for (Path path : loadFiles("danse", ".ajblueprint")) {
                 Danse.LOGGER.info("Loading player gesture model: {}", path.getFileName());
-                PlayerModelRegistry.addFrom(PlayerModelLoader.load(path.toString()));
+                try {
+                    PlayerModelRegistry.addFrom(PlayerModelLoader.load(path.toString()));
+                } catch (RuntimeException e) {
+                    Danse.LOGGER.error("Could not load the gestures in {}", path.getFileName(), e);
+                }
             }
 
             var added = false;

@@ -2,7 +2,6 @@ package de.tomalbrc.danse.registry;
 
 import com.google.common.collect.ImmutableList;
 import de.tomalbrc.bil.core.model.Model;
-import de.tomalbrc.bil.file.loader.AjBlueprintLoader;
 import de.tomalbrc.danse.Danse;
 import de.tomalbrc.danse.bbmodel.PlayerModelLoader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
@@ -28,16 +27,21 @@ public class PlayerModelRegistry {
                 "tightly-coupled",
                 "default",
                 "emotes-vanilla-rig",   // joint_wrong only: Millia's test of the vanilla rig against danse's
-                "emotes"
+                "emotes"                // Millia's gestures, Animated Java 1.11 / Blockbench 5, as saved
                 // add more if needed
         );
 
         for (String filename : sourceModels) {
-            Model model = new PlayerModelLoader().loadResource(Identifier.fromNamespaceAndPath("danse", filename));
-            Model normalModel = new AjBlueprintLoader().loadResource(Identifier.fromNamespaceAndPath("danse", filename));
-            for (String animationName : model.animations().keySet()) {
-                animationModelMap.put(animationName, model);
-                texturedModelMap.put(animationName, normalModel);
+            // One broken file costs its own gestures, not the server.
+            try {
+                Model model = new PlayerModelLoader().loadResource(Identifier.fromNamespaceAndPath("danse", filename));
+                Model normalModel = new PlayerModelLoader(true).loadResource(Identifier.fromNamespaceAndPath("danse", filename));
+                for (String animationName : model.animations().keySet()) {
+                    animationModelMap.put(animationName, model);
+                    texturedModelMap.put(animationName, normalModel);
+                }
+            } catch (Throwable throwable) {
+                Danse.LOGGER.error("Could not load the gestures in {}.ajblueprint", filename, throwable);
             }
         }
     }
