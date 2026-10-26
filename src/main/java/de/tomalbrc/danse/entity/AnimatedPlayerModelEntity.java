@@ -9,9 +9,11 @@ import eu.pb4.polymer.virtualentity.api.attachment.EntityAttachment;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jetbrains.annotations.NotNull;
@@ -90,11 +92,17 @@ public class AnimatedPlayerModelEntity extends StatuePlayerModelEntity implement
         this.holder.getAnimator().playAnimation(animation, onFinish);
     }
 
+    // Only a creative player's hit or damage that bypasses invulnerability (/kill, the void) removes
+    // the model; everything else leaves it dancing. kill() would come back here as genericKill, so
+    // the model is removed directly.
     @Override
     public boolean hurtServer(ServerLevel serverLevel, DamageSource damageSource, float f) {
-        if (damageSource.isCreativePlayer())
-            this.kill(serverLevel);
-        return damageSource.isCreativePlayer();
+        if (!damageSource.isCreativePlayer() && !damageSource.is(DamageTypeTags.BYPASSES_INVULNERABILITY))
+            return false;
+
+        this.remove(RemovalReason.KILLED);
+        this.gameEvent(GameEvent.ENTITY_DIE);
+        return true;
     }
 }
 
