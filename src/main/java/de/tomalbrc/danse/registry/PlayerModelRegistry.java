@@ -26,7 +26,6 @@ public class PlayerModelRegistry {
                 "loosely-coupled",
                 "tightly-coupled",
                 "default",
-                "emotes-vanilla-rig",   // joint_wrong only: Millia's test of the vanilla rig against danse's
                 "emotes"                // Millia's gestures, Animated Java 1.11 / Blockbench 5, as saved
                 // add more if needed
         );

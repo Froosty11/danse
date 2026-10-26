@@ -52,7 +52,7 @@ import java.util.function.Consumer;
  */
 public final class GestureFramesClientTest implements FabricClientGameTest {
     private static final double[] TIMES = {0, 0.5, 1, 2, 4};
-    private static final String[] GESTURES = {"fortnite", "floss", "amogus", "rote_pferd", "joint_wrong"};
+    private static final String[] GESTURES = {"fortnite", "floss", "amogus", "rote_pferd"};
     private static final String[] PARTS = {"head", "body", "arm_r", "arm_l", "leg_r", "leg_l"};
     private static final int FOV = 50;
     private static final int SETTLE_TICKS = 12;
