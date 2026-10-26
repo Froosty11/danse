@@ -96,11 +96,11 @@ upstream. Changes from `v2.6.0+26.3`:
   (`BlockbenchSampler`: the interpolation follows both neighbouring keyframes, Animated Java's
   easing only on linear segments), so a gesture moves in game as it does in the editor. Older 1.7.3
   files still load as before. A blueprint that fails to load logs an error instead of stopping the server.
-- **More gestures** (`emotes.ajblueprint`, by Millia in Animated Java 1.11, as saved): amogus, clap,
-  defeat, floss, fortnite, soldier_of_dance and rote_pferd, rigged on Danse's player rig (body 14,
-  arms ±6, legs 13), where the stand-in's parts are placed. `joint_fix` (in it) and `joint_wrong`
-  (`emotes-vanilla-rig.ajblueprint`, the same pose on the vanilla rig) are Millia's test of the two
-  rigs: on the vanilla rig the stand-in's joints come apart.
+- **More gestures** (`emotes.ajblueprint`, by Millia in Animated Java 1.11, as saved but for
+  `rote pferd` renamed `rote_pferd`): amogus, clap, defeat, floss, fortnite, hopak and rote_pferd,
+  rigged on Danse's player rig (body 14, arms ±6, legs 13), where the stand-in's parts are placed.
+  `joint_wrong` (`emotes-vanilla-rig.ajblueprint`) is Millia's test of the vanilla rig: on it the
+  stand-in's joints come apart.
 - **Adding a gesture.** Animate in Animated Java 1.11 on Danse's rig: groups named `head`, `body`,
   `arm_r`, `arm_l`, `leg_r`, `leg_l` with their pivots at the rig's (`emotes.ajblueprint` is a
   template; parent groups such as its `construct` may move the whole figure). Each animation is a
